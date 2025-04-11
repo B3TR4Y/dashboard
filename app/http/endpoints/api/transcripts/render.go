@@ -16,32 +16,32 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	userId := ctx.Keys["userid"].(uint64)
 
 	// Debug: Log guildId and userId
-	utils.DebugLog("Guild ID:", guildId, "User ID:", userId)
+	utils.ErrorStr("Guild ID:", guildId, "User ID:", userId)
 
 	// format ticket ID
 	ticketId, err := strconv.Atoi(ctx.Param("ticketId"))
 	if (err != nil) {
-		utils.DebugLog("Error parsing ticket ID:", err)
+		utils.ErrorStr("Error parsing ticket ID:", err)
 		ctx.JSON(400, utils.ErrorStr("Invalid ticket ID"))
 		return
 	}
-	utils.DebugLog("Ticket ID:", ticketId)
+	utils.ErrorStr("Ticket ID:", ticketId)
 
 	// get ticket object
 	ticket, err := dbclient.Client.Tickets.Get(ctx, ticketId, guildId)
 	if err != nil {
-		utils.DebugLog("Error fetching ticket:", err)
+		utils.ErrorStr("Error fetching ticket:", err)
 		ctx.JSON(500, gin.H{
 			"success": false,
 			"error":   err.Error(),
 		})
 		return
 	}
-	utils.DebugLog("Fetched ticket:", ticket)
+	utils.ErrorStr("Fetched ticket:", ticket)
 
 	// Verify this is a valid ticket and it is closed
 	if ticket.UserId == 0 || ticket.Open {
-		utils.DebugLog("Invalid or open ticket:", ticket)
+		utils.ErrorStr("Invalid or open ticket:", ticket)
 		ctx.JSON(404, utils.ErrorStr("Transcript not found"))
 		return
 	}
@@ -49,46 +49,46 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	// Verify the user has permissions to be here
 // ticket.UserId cannot be 0
 	if ticket.UserId != userId {
-		utils.DebugLog("User does not own the ticket. Checking permissions...")
+		utils.ErrorStr("User does not own the ticket. Checking permissions...")
 		hasPermission, err := utils.HasPermissionToViewTicket(ctx, guildId, userId, ticket)
 		if err != nil {
-			utils.DebugLog("Error checking permissions:", err)
+			utils.ErrorStr("Error checking permissions:", err)
 			ctx.JSON(err.StatusCode, utils.ErrorJson(err))
 			return
 		}
 
 		if !hasPermission {
-			utils.DebugLog("User lacks permission to view the transcript")
+			utils.ErrorStr("User lacks permission to view the transcript")
 			ctx.JSON(403, utils.ErrorStr("You do not have permission to view this transcript"))
 			return
 		}
 	}
 
 	// retrieve ticket messages from bucket
-	utils.DebugLog("Fetching transcript from ArchiverClient...")
+	utils.ErrorStr("Fetching transcript from ArchiverClient...")
 	transcript, err := utils.ArchiverClient.Get(ctx, guildId, ticketId)
 	if err != nil {
 		if errors.Is(err, archiverclient.ErrNotFound) {
-			utils.DebugLog("Transcript not found in ArchiverClient")
+			utils.ErrorStr("Transcript not found in ArchiverClient")
 			ctx.JSON(404, utils.ErrorStr("Transcript not found"))
 		} else {
-			utils.DebugLog("Error fetching transcript:", err)
+			utils.ErrorStr("Error fetching transcript:", err)
 			ctx.JSON(500, utils.ErrorJson(err))
 		}
 		return
 	}
-	utils.DebugLog("Fetched transcript:", transcript)
+	utils.ErrorStr("Fetched transcript:", transcript)
 
 	// Render
-	utils.DebugLog("Rendering transcript...")
+	utils.ErrorStr("Rendering transcript...")
 	payload := chatreplica.FromTranscript(transcript, ticketId)
 	html, err := chatreplica.Render(payload)
 	if err != nil {
-		utils.DebugLog("Error rendering transcript:", err)
+		utils.ErrorStr("Error rendering transcript:", err)
 		ctx.JSON(500, utils.ErrorJson(err))
 		return
 	}
-	utils.DebugLog("Transcript rendered successfully")
+	utils.ErrorStr("Transcript rendered successfully")
 
 	ctx.Data(200, "text/html", html)
 }
