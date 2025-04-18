@@ -22,7 +22,7 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	fmt.Printf("3")
 	if err != nil {
 		fmt.Printf("4")
-		ctx.JSON(400, fmt.Printf("Invalid ticket ID"))
+		ctx.JSON(400, utils.ErrorStr("Invalid ticket ID"))
 		return
 	}
 
@@ -63,7 +63,7 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 		fmt.Printf("14")
 		if !hasPermission {
 			fmt.Printf("15")
-			ctx.JSON(403, fmt.Printf("You do not have permission to view this transcript"))
+			ctx.JSON(403, utils.ErrorStr("You do not have permission to view this transcript"))
 			return
 		}
 	}
@@ -76,7 +76,7 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 		fmt.Printf("18")
 		if errors.Is(err, archiverclient.ErrNotFound) {
 			fmt.Printf("19")
-			ctx.JSON(404, fmt.Printf("Transcript not found"))
+			ctx.JSON(404, utils.ErrorStr("Transcript not found"))
 		} else {
 			fmt.Printf("20")
 			ctx.JSON(500, utils.ErrorJson(err))
