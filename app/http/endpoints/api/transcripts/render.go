@@ -74,8 +74,8 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	log.Println("17")
 	if err != nil {
 		log.Println("18")
-		log.Println("Error: "+ err)
-		log.Println("transcript: "+ transcript)
+		log.Println("Error: "+ err.Error())
+
 		if errors.Is(err, archiverclient.ErrNotFound) {
 			log.Println("19")
 			ctx.JSON(404, utils.ErrorStr("Transcript not found"))
