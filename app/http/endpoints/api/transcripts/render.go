@@ -43,7 +43,7 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	fmt.Printf("8")
 	if ticket.UserId == 0 || ticket.Open {
 		fmt.Printf("9")
-		ctx.JSON(404, fmt.Printf("Transcript not found"))
+		ctx.JSON(404, utils.ErrorStr("Transcript not found"))
 		return
 	}
 
