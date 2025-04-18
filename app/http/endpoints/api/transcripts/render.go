@@ -74,17 +74,22 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	log.Println("17")
 	if err != nil {
 		log.Println("18")
-		log.Println("Error: "+ err.Error())
+		if err.Error() == "invalid input: magic number mismatch" {
+			// Ignore this specific error and proceed
+			log.Println("Ignoring error: invalid input: magic number mismatch")
+		} else  {
+			log.Println("Error: "+ err.Error())
 
-		if errors.Is(err, archiverclient.ErrNotFound) {
-			log.Println("19")
-			ctx.JSON(404, utils.ErrorStr("Transcript not found"))
-		} else {
-			log.Println("20")
-			ctx.JSON(500, utils.ErrorJson(err))
+			if errors.Is(err, archiverclient.ErrNotFound) {
+				log.Println("19")
+				ctx.JSON(404, utils.ErrorStr("Transcript not found"))
+			} else {
+				log.Println("20")
+				ctx.JSON(500, utils.ErrorJson(err))
+			}
+
+			return
 		}
-
-		return
 	}
 
 	// Render
