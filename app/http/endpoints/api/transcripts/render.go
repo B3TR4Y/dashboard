@@ -71,6 +71,11 @@ func GetTranscriptRenderHandler(ctx *gin.Context) {
 	// retrieve ticket messages from bucket
 	log.Println("16")
 	transcript, err := utils.ArchiverClient.Get(ctx, guildId, ticketId)
+	log.Println(transcript)
+	log.Println(err)
+	log.Println(ctx)
+	log.Println(guildId)
+	log.Println(ticketId)
 	log.Println("17")
 	if err != nil {
 		log.Println("18")
